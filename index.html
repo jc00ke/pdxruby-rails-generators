@@ -239,6 +239,25 @@ end
         </section>
 
         <section>
+          <pre><code contenteditable class="ruby">
+Sequel.migration do
+  change do
+    create_table :<%= config[:table_name] %> do
+      primary_key :id
+      String :dbx_id
+   <% config[:attributes].each do |attr| -%>
+   <%= "#{attr.type} :#{attr.name}" -%>
+   <% if attr.name[/_id$/] %>
+      <%= "String :dbx_#{attr.name}, index: true" -%>
+   <% end %>
+   <% end %>
+    end
+  end
+end
+          </code></pre>
+        </section>
+
+        <section>
           <h2>What I want</h2>
           <pre class="fragment"><code contenteditable class="rake">
 rake db:migrate_schema
@@ -280,8 +299,24 @@ class CreateWidget < ActiveRecord::Migration
       t.string :name
       t.text   :description
       t.string :dbx_foo_id
-
       t.timestamps
+    end
+  end
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <pre><code contenteditable class="ruby">
+Sequel.migration do
+  change do
+    create_table :widgets do
+      primary_key :id
+      String :dbx_id
+      String :name
+      String :description
+      DateTime :created_at
+      DateTime :updated_at
     end
   end
 end
