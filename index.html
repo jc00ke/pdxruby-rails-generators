@@ -1,9 +1,9 @@
-<!doctype html>  
+<!doctype html>
 <html lang="en">
-	
+
 	<head>
 		<meta charset="utf-8">
-		
+
 		<title>Rails Generators that generate generators</title>
 
 		<meta name="description" content="pdxruby September 2012 lightning talk">
@@ -11,24 +11,24 @@
 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-		
-		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-		
-		<link rel="stylesheet" href="/css/reset.css">
-		<link rel="stylesheet" href="/css/main.css">
-		<link rel="stylesheet" href="/css/print.css" type="text/css" media="print">
 
-		<link rel="stylesheet" href="/lib/css/solarized_light.css" >
-		<link rel="stylesheet" href="/lib/assets/styles.css">
-	</head>                        
-	                              
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/solarized_light.css" >
+		<link rel="stylesheet" href="lib/assets/styles.css">
+	</head>
+
 	<body>
-		
+
 		<div class="reveal">
 
 			<!-- Used to fade in a background when a specific slide state is reached -->
 			<div class="state-background"></div>
-			
+
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
@@ -41,7 +41,7 @@
 
         <section>
           <h2>Generators?</h2>
-          <pre><code contenteditable class="bash"> 
+          <pre><code contenteditable class="bash">
 rails new foo
           </code></pre>
         </section>
@@ -52,7 +52,7 @@ rails new foo
         </section>
 
         <section>
-          <pre><code class="bash"> 
+          <pre><code class="bash">
 ∴ rails g
 Usage: rails generate GENERATOR [args] [options]
 
@@ -87,7 +87,7 @@ RailsAdmin:
         </section>
 
         <section>
-          <pre><code class="bash"> 
+          <pre><code class="bash">
 ∴ rails g
 Usage: rails generate GENERATOR [args] [options]
 
@@ -112,7 +112,7 @@ Rails:
         </section>
 
         <section>
-          <pre><code class="bash"> 
+          <pre><code class="bash">
 ∴ rails g generator converter
       create  lib/generators/converter
       create  lib/generators/converter/converter_generator.rb
@@ -122,10 +122,10 @@ Rails:
         </section>
 
         <section>
-          <pre><code class="bash"> 
+          <pre><code class="bash">
 cat  lib/generators/converter/converter_generator.rb
           </code></pre>
-          <pre><code class="ruby"> 
+          <pre><code class="ruby">
 class ConverterGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('../templates', __FILE__)
 end
@@ -133,7 +133,7 @@ end
         </section>
 
         <section>
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 require 'active_record'
 
 class ConverterGenerator < Rails::Generators::NamedBase
@@ -152,16 +152,16 @@ end
         </section>
 
         <section>
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 class ConverterGenerator < Rails::Generators::NamedBase
   # ...
 
   def copy_initializer_file
-    template_locals = { 
+    template_locals = {
       class_name: class_name.split('::').join,
       table_name: table_name,
       attributes: attributes
-    }   
+    }
     number = next_migration_number
     template  "migration.rb",
               "db/migrate/#{number}_#{file_name}.rb",
@@ -172,7 +172,7 @@ end
         </section>
 
         <section>
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 class ConverterGenerator < Rails::Generators::NamedBase
   # ...
 
@@ -188,15 +188,13 @@ class ConverterGenerator < Rails::Generators::NamedBase
 
   private
   def next_migration_number
-    self.
-      class
-      next_migration_number(Rails.root.join("db/migrate"))
+    # ...
   end
           </code></pre>
         </section>
 
         <section>
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 class DatabaseMigrator
   TYPE_MAP = {
     # ...
@@ -209,32 +207,19 @@ class DatabaseMigrator
 
   private
   def mapped_attributes
-    attributes.map do |attr|
-      type = TYPE_MAP[attr[:type]]
-      "#{attr[:name]}:#{type}"
-    end
-  end 
+    # ...
+  end
   # ...
 end
           </code></pre>
         </section>
 
         <section>
-          <pre><code class="bash"> 
-∴ rails g generator converter
-      create  lib/generators/converter
-      create  lib/generators/converter/converter_generator.rb
-      create  lib/generators/converter/USAGE
-      create  lib/generators/converter/templates
-          </code></pre>
-        </section>
-
-        <section>
-          <pre><code class="bash"> 
+          <pre><code class="bash">
 cat  lib/generators/converter/templates/migrate.rb
           </code></pre>
 
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 class Create<%= config[:class_name] %> < ActiveRecord::Migration
   def change
     create_table :<%= config[:table_name] %> do |t|
@@ -249,19 +234,19 @@ class Create<%= config[:class_name] %> < ActiveRecord::Migration
       t.timestamps
     end
   end
-end 
+end
           </code></pre>
         </section>
 
         <section>
           <h2>What I want</h2>
-          <pre class="fragment"><code contenteditable class="rake"> 
+          <pre class="fragment"><code contenteditable class="rake">
 rake db:migrate_schema
           </code></pre>
         </section>
 
         <section>
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 require 'rails/generators'
 
 namespace :db do
@@ -281,13 +266,13 @@ end
         </section>
 
         <section>
-          <pre><code contenteditable class="rake"> 
+          <pre><code contenteditable class="rake">
 rake db:migrate_schema
           </code></pre>
         </section>
 
         <section>
-          <pre><code contenteditable class="ruby"> 
+          <pre><code contenteditable class="ruby">
 class CreateWidget < ActiveRecord::Migration
   def change
     create_table :widgets do |t|
@@ -333,15 +318,15 @@ end
 
 			<!-- Presentation progress bar -->
 			<div class="progress"><span></span></div>
-			
+
 		</div>
 
-		<script src="/lib/js/head.min.js"></script>
+		<script src="lib/js/head.min.js"></script>
 
 		<script>
 			// Load reveal.js as well as a classList polyfill if needed
-			head.js( !document.body.classList ? '/lib/js/classList.js' : null )
-				.js( '/js/reveal.js', function() {
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
 
 				// Parse the query string into a key/value object
 				var query = {};
@@ -365,24 +350,24 @@ end
 					controls: true,
 					progress: true,
 					history: true,
-					
+
 					theme: query.theme || 'default', // default/neon/beige
 					transition: query.transition || 'concave' // default/cube/page/concave/linear(2d)
 				});
 
 			} );
-			
+
 			// Load highlight.js for syntax highlighting of code samples
-			head.js( '/lib/js/highlight.js', function() { 
-				hljs.initHighlightingOnLoad(); 
+			head.js( '/lib/js/highlight.js', function() {
+				hljs.initHighlightingOnLoad();
 			} );
 
 			// If we're runnning the notes server we need to include some additional JS
 			// TODO Is there a better way to determine if we're running the notes server?
 			if( window.location.host === 'localhost:1947' ) {
-				head.js( 'socket.io/socket.io.js', '/plugin/speakernotes/client.js' );
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
 			}
 		</script>
-		
+
 	</body>
 </html>
